@@ -39,33 +39,44 @@ public class Main {
         e.add(externalTemp);
         e.add(internalTemp);
 
-        Sensor externalThermometer = new Sensor("External Thermometer",e,200,500); //-100 degF to 440 degF
-        Sensor internalThermometer = new Sensor("Internal Thermometer",e,200,500); //-100 degF to 440 degF
+        //Add a bunch of sensors and controls for heat control
+        Sensor externalThermometer = new Sensor("External Thermometer",externalTemp,200,500); //-100 degF to 440 degF
+        Sensor internalThermometer = new Sensor("Internal Thermometer",internalTemp,200,500); //-100 degF to 440 degF
         Control extendRadiator = new Control("Extend Radiator",1.0);
         Control retractRadiator = new Control("Retract Radiator",-1.0);
         Control increaseAC = new Control("Increase Air Conditioning",1.0);
         Control decreaseAC = new Control("Decrease Air Conditioning",-1.0);
         Control increaseHeater = new Control("Increase Heater",1.0);
         Control decreaseHeater = new Control("Decrease Heater",-1.0);
-        Component heatRadiator = new Component("Heat Radiator","Radiator Extension",Status.NOMINAL,"no issues",0.0,100.0);
+
+        /*Start adding components*/
+
+        Component heatRadiator = new Component("Heat Radiator","Radiator Setting",StatusCode.NOMINAL,0.0,100.0);
         heatRadiator.add(externalThermometer);
         heatRadiator.add(extendRadiator);
         heatRadiator.add(retractRadiator);
 
-        Component airConditioner = new Component("Air Conditioner","AC Setting",Status.NOMINAL,"no issues",0.0,100.0);
+        Component airConditioner = new Component("Air Conditioner","AC Setting",StatusCode.NOMINAL,0.0,100.0);
         airConditioner.add(internalThermometer);
         airConditioner.add(externalThermometer);
         airConditioner.add(increaseAC);
         airConditioner.add(decreaseAC);
 
-        Component heater = new Component("Heater","Heater Setting",Status.NOMINAL,"no issues",0.0,100.0);
+        Component heater = new Component("Heater","Heater Setting",StatusCode.NOMINAL,0.0,100.0);
         heater.add(internalThermometer);
         heater.add(increaseHeater);
         heater.add(decreaseHeater);
 
-        LifeSupportSubsystem temperatureControl = new LifeSupportSubsystem("Temperature Control",Status.NOMINAL,"no issues");
+        LifeSupportSubsystem temperatureControl = new LifeSupportSubsystem("Temperature Control",StatusCode.NOMINAL);
+        temperatureControl.add(heatRadiator);
+        temperatureControl.add(airConditioner);
+        temperatureControl.add(heater);
 
-        temperatureControl.test()
-        temperatureControl.check();
+        System.out.println(temperatureControl.check());
+
+        airConditioner.incrementControl(increaseAC,10);
+
+        System.out.println(temperatureControl.check());
+
     }
 }

@@ -6,7 +6,7 @@ public class Environment {
     private ArrayList<Parameter> parameters;
 
     public Environment() {
-        parameters = null;
+        parameters = new ArrayList<>();
     }
 
     public void add(Parameter p) {
