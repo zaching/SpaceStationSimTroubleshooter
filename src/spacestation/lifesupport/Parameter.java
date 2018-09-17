@@ -5,7 +5,7 @@ public class Parameter {
     private final String UnitOfMeasure;
     private double Value;
 
-    public Parameter(String name, String unitOfMeasure, Double value) {
+    public Parameter(String name, String unitOfMeasure, double value) {
         this.Name = name;
         this.UnitOfMeasure = unitOfMeasure;
         this.Value = value;
