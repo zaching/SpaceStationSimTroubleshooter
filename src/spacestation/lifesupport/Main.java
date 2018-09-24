@@ -39,9 +39,12 @@ public class Main {
         e.add(externalTemp);
         e.add(internalTemp);
 
+        ParameterLimit externalTempLimit = new ParameterLimit(externalTemp,300,225,350,200);
+        ParameterLimit internalTempLimit = new ParameterLimit(externalTemp,300,288,310,275);
+
         //Add a bunch of sensors and controls for heat control
-        Sensor externalThermometer = new Sensor("External Thermometer",externalTemp,200,500); //-100 degF to 440 degF
-        Sensor internalThermometer = new Sensor("Internal Thermometer",internalTemp,200,500); //-100 degF to 440 degF
+        Sensor externalThermometer = new Sensor("External Thermometer",externalTempLimit,200,500); //-100 degF to 440 degF
+        Sensor internalThermometer = new Sensor("Internal Thermometer",internalTempLimit,200,500); //-100 degF to 440 degF
         Control extendRadiator = new Control("Extend Radiator",1.0);
         Control retractRadiator = new Control("Retract Radiator",-1.0);
         Control increaseAC = new Control("Increase Air Conditioning",1.0);

@@ -25,8 +25,42 @@ public class LifeSupportSubsystem {
         return str;
     }
 
+    public ArrayList<Component> getComponentsWithProblems() {
+        ArrayList<Component> ret = new ArrayList<>();
+        for (Component c : SubComponents) {
+            if (c.getStatus().moreSevere(StatusCode.NOMINAL)) {
+                ret.add(c);
+            }
+        }
+        return ret;
+    }
+
     public void add(Component c) {
         SubComponents.add(c);
+    }
+
+    public void downgradeStatus(StatusCode newStatus) {
+        if (newStatus.moreSevere(Status)) {
+            Status = newStatus;
+        }
+    }
+
+    public void upgradeStatus(StatusCode newStatus) {
+        if (newStatus.lessSevere(Status)) {
+            Status = newStatus;
+        }
+    }
+
+    public ArrayList<Sensor> getSensors() {
+        ArrayList<Sensor> ret = new ArrayList<>();
+        for (Component c : SubComponents) {
+            ret.addAll(c.getSensors());
+        }
+        return ret;
+    }
+
+    public StatusCode getStatus() {
+        return Status;
     }
 
     public String getName() {

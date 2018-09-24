@@ -1,20 +1,30 @@
 package spacestation.lifesupport;
 
 public enum StatusCode {
-    NOMINAL("Nominal"),
-    WARNING("Warning"),
-    ERROR("Error"),
-    CRITCAL_FAILURE("Critical Failure");
+    NOMINAL("Nominal",1),
+    WARNING("Warning",2),
+    ERROR("Error",3),
+    CRITICAL("Critical Failure",4);
 
 
     private final String text;
+    private final int severity;
 
-    StatusCode(String text) {
+    StatusCode(String text, int severity) {
         this.text = text;
+        this.severity = severity;
     }
 
     public String getText() {
         return this.text;
+    }
+
+    public boolean moreSevere(StatusCode otherStatus) {
+        return otherStatus.severity < severity;
+    }
+
+    public boolean lessSevere(StatusCode otherStatus) {
+        return otherStatus.severity > severity;
     }
 
     public String toString() {
