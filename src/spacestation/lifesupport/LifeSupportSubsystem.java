@@ -3,13 +3,15 @@ package spacestation.lifesupport;
 import java.util.ArrayList;
 
 public class LifeSupportSubsystem {
-    private String Name;
+    private final String Name;
+    private final ArrayList<Component> SubComponents = new ArrayList<>();
+    private final Computer Governor;
     private StatusCode Status;
-    private ArrayList<Component> SubComponents = new ArrayList<>();
 
-    public LifeSupportSubsystem(String name, StatusCode status) {
+    public LifeSupportSubsystem(String name, StatusCode status, Computer governor) {
         this.Name = name;
         this.Status = status;
+        this.Governor = governor;
     }
 
     public String check() {
@@ -54,9 +56,13 @@ public class LifeSupportSubsystem {
     public ArrayList<Sensor> getSensors() {
         ArrayList<Sensor> ret = new ArrayList<>();
         for (Component c : SubComponents) {
-            ret.addAll(c.getSensors());
+            ret.addAll(c.getExtraSensors());
         }
         return ret;
+    }
+
+    public void updateModule() {
+        Governor.updateModule();
     }
 
     public StatusCode getStatus() {

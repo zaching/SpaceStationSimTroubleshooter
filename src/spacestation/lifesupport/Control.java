@@ -2,17 +2,17 @@ package spacestation.lifesupport;
 
 public class Control {
     private final String Name;
-    private final double MaxIncrement;
     private final double SettingIncrement;
+    private final int Direction;
     private StatusCode Status = StatusCode.NOMINAL;
 
-    public Control(String name, double settingIncrement, double maxIncrement) {
+    public Control(String name, double settingIncrement, int direction) {
         this.Name = name;
         this.SettingIncrement = settingIncrement;
-        this.MaxIncrement = maxIncrement;
+        this.Direction = direction;
     }
 
-    public StatusCode check() {
+    public StatusCode getStatus() {
         return this.Status;
     }
 
@@ -22,17 +22,21 @@ public class Control {
         }
     }
 
-    public void criticalFailure() {
+    public void criticalFail() {
         Status = StatusCode.CRITICAL;
     }
 
-    public double getIncrement() {
+    public void repair() {
+        if (Status.lessSevere(StatusCode.CRITICAL)) Status = StatusCode.NOMINAL;
+    }
+
+    public double getIncrementSize() {
         return SettingIncrement;
     }
 
     public double increment(double value) {
         if (Status == StatusCode.NOMINAL) {
-            return SettingIncrement * Math.min(value,MaxIncrement);
+            return Math.min(value,SettingIncrement)*Direction;
         }
         return 0;
     }

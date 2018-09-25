@@ -41,6 +41,11 @@ public class Sensor {
         return aboveSafe() || belowSafe();
     }
 
+    public StatusCode getStatus() {
+        if (outsideSafe()) return StatusCode.CRITICAL; //BUG: Switching these two lines will make a nice bug
+        if (outsideDesired()) return StatusCode.WARNING;
+        return StatusCode.NOMINAL;
+    }
     public double getDeviationFromDesired() {
         if (aboveDesired()) {
             return getReading() - Limit.UpperSoftBound;
