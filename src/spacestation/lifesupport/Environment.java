@@ -4,6 +4,9 @@ import java.util.ArrayList;
 
 public class Environment {
     private ArrayList<Parameter> parameters;
+    public final double HeatExchangeFactor = 5.0;
+    public final double InternalLatentHeatGenerationInDegreesK = 10.0;
+    public final double ExternalLatentHeatDissipationInDegreesK = 5.0;
 
     public Environment() {
         parameters = new ArrayList<>();

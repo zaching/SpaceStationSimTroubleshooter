@@ -13,6 +13,7 @@ public class Main {
         //LifeSupportSubsystem needs to deal with whatever issues pop up, but has lots of breaks causing the crew to die
         //Events: Initialization, Steady State, Daybreak, Nightfall, New Arrival, Micropuncture
         initialize();
+        System.out.println(systems.get(0).check());
         updateCycle();
         System.out.println(systems.get(0).check());
 
@@ -48,13 +49,13 @@ public class Main {
         //Temperature
         //Heating is easy, just need electricity
         //Cooling is hard, heat transfer is a bitch, but accomplished with radiative fans and an internal AC (AC passes heat to radiators)
-        Parameter externalTemp = new Parameter("External Temperature","Kelvin",200.0);
+        Parameter externalTemp = new Parameter("External Temperature","Kelvin",250.0);
         Parameter internalTemp = new Parameter("Internal Temperature","Kelvin",295.0);
         e.add(externalTemp);
         e.add(internalTemp);
 
-        ParameterLimit externalTempLimit = new ParameterLimit(externalTemp,300,225,350,200);
-        ParameterLimit internalTempLimit = new ParameterLimit(externalTemp,300,288,310,275);
+        ParameterLimit externalTempLimit = new ParameterLimit(externalTemp,300,200,350,200);
+        ParameterLimit internalTempLimit = new ParameterLimit(internalTemp,300,288,310,275);
 
         //Add a bunch of sensors and controls for heat regulation
         Sensor externalThermometer = new Sensor("External Thermometer",externalTempLimit,200,500); //-100 degF to 440 degF
@@ -80,6 +81,9 @@ public class Main {
         temperatureControl.add(airConditioner);
         temperatureControl.add(heater);
 
+        Computer lifeSupportGovernor = new Computer(temperatureControl);
+        temperatureControl.add(lifeSupportGovernor);
+
         systems.add(temperatureControl);
     }
 
@@ -91,14 +95,27 @@ public class Main {
         }
         //Execute changes to the environment from setting changes
           //For each component, pull the parameter of the primary sensor and change it by the setting * impact then do the same with the secondary
-        for (Component c : allComponents()) {
-            double amountToChangePrimaryParameter = c.getSetting()* c.SettingPrimaryImpact;
+        for (Component c : allComponents) {
+            double amountToChangePrimaryParameter = c.getCurrentSetting()* c.SettingPrimaryImpact;
             c.getPrimarySensor().getParameterLimit().getParameter().increaseValue(amountToChangePrimaryParameter);
             //BUG: Secondary sensor is null for many components, could be an easy bug to have an NPE if I remove this check
             if (c.getSecondarySensor() != null) {
-                double amountToChangeSecondaryParameter = c.getSetting() * c.SettingSecondaryImpact;
+                double amountToChangeSecondaryParameter = c.getCurrentSetting() * c.SettingSecondaryImpact;
                 c.getSecondarySensor().getParameterLimit().getParameter().increaseValue(amountToChangeSecondaryParameter);
             }
         }
+        Parameter internalTemp = e.getParameter("Internal Temperature");
+        Parameter externalTemp = e.getParameter("External Temperature");
+        //Generate "side effect" internal heat from various systems that aren't explicitly part of temperature control
+        //Basically, everything electronic generates *some* heat
+        internalTemp.increaseValue(e.InternalLatentHeatGenerationInDegreesK);
+
+        //Do a heat exchange between inside and outside
+        double heatExchange = (internalTemp.getValue() - externalTemp.getValue())/e.HeatExchangeFactor;
+        internalTemp.decreaseValue(heatExchange);
+        externalTemp.increaseValue(heatExchange);
+
+        //Also some natural radiation of heat to the background level of 0K
+        externalTemp.decreaseValue(e.ExternalLatentHeatDissipationInDegreesK);
     }
 }

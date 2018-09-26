@@ -5,13 +5,12 @@ import java.util.ArrayList;
 public class LifeSupportSubsystem {
     private final String Name;
     private final ArrayList<Component> SubComponents = new ArrayList<>();
-    private final Computer Governor;
+    private Computer Governor;
     private StatusCode Status;
 
-    public LifeSupportSubsystem(String name, StatusCode status, Computer governor) {
+    public LifeSupportSubsystem(String name, StatusCode status) {
         this.Name = name;
         this.Status = status;
-        this.Governor = governor;
     }
 
     public String check() {
@@ -41,6 +40,8 @@ public class LifeSupportSubsystem {
         SubComponents.add(c);
     }
 
+    public void add(Computer governor) { this.Governor = governor; }
+
     public void downgradeStatus(StatusCode newStatus) {
         if (newStatus.moreSevere(Status)) {
             Status = newStatus;
@@ -56,7 +57,11 @@ public class LifeSupportSubsystem {
     public ArrayList<Sensor> getSensors() {
         ArrayList<Sensor> ret = new ArrayList<>();
         for (Component c : SubComponents) {
-            ret.addAll(c.getExtraSensors());
+            ret.add(c.getPrimarySensor());
+            //BUG: Another good place for an NPE, this one could be fun b/c it might actually add null to the ArrayList causing weird downstream issues!
+            if (c.getSecondarySensor() != null) {
+                ret.add(c.getSecondarySensor());
+            }
         }
         return ret;
     }

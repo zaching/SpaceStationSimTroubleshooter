@@ -1,7 +1,5 @@
 package spacestation.lifesupport;
 
-import java.util.ArrayList;
-
 public class Component {
     private final String Name;
     private final String SettingName;
@@ -11,7 +9,7 @@ public class Component {
     private final Sensor SecondarySensor; //A secondary sensor to measure side effects, if relevant
     private final Control IncreaseController;
     private final Control DecreaseController;
-    private double Setting;
+    private double CurrentSetting;
     private StatusCode Status;
     public final double SettingPrimaryImpact; //How many units the target parameter changes for each unit of setting change
     public final double SettingSecondaryImpact; //How many units the secondary parameter changes (only relevant if component has side effects)
@@ -32,10 +30,12 @@ public class Component {
 
     public String check() {
         String str = getName() + " is " + Status + "\n";
-        str+= SettingName + ": " + getSetting() + "\n\n";
+        str+= SettingName + ": " + getCurrentSetting() + "\n\n";
         str += "  Sensors:\n";
         str += " " + PrimarySensor.getName() + ": " + PrimarySensor.getReading() + "\n";
-        str += "  " + SecondarySensor.getName() + ": " + SecondarySensor.getReading() + "\n";
+        if (SecondarySensor != null) {
+            str += "  " + SecondarySensor.getName() + ": " + SecondarySensor.getReading() + "\n";
+        }
         str += "\n  Controls:\n";
         str += "  " + IncreaseController.getName() + ": " + IncreaseController.getStatus() + "\n";
         str += "  " + DecreaseController.getName() + ": " + DecreaseController.getStatus() + "\n";
@@ -75,9 +75,9 @@ public class Component {
 
     private StatusCode incrementControl(Control c, double value) {
         value = Math.abs(value);
-        Setting += c.increment(value);
+        CurrentSetting += c.increment(value);
         //If an invalid setting was sent, return a warning to the sender
-        if (getSetting() >= MinSetting && value <= MaxSetting) {
+        if (getCurrentSetting() >= MinSetting && value <= MaxSetting) {
             return StatusCode.NOMINAL;
         }
         fixSetting();
@@ -85,15 +85,15 @@ public class Component {
     }
 
     private void fixSetting() {
-        Setting = Math.min(Math.max(getSetting(), MinSetting), MaxSetting);
+        CurrentSetting = Math.min(Math.max(getCurrentSetting(), MinSetting), MaxSetting);
     }
 
     public Sensor getPrimarySensor() { return PrimarySensor; }
 
     public Sensor getSecondarySensor() { return SecondarySensor; }
 
-    public double getSetting() {
-        return this.Setting;
+    public double getCurrentSetting() {
+        return this.CurrentSetting;
     }
 
     public String getName() {
