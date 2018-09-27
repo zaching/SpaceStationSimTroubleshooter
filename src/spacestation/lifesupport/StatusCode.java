@@ -27,6 +27,8 @@ public enum StatusCode {
         return otherStatus.severity > severity;
     }
 
+    public StatusCode getWorseStatus(StatusCode otherStatus) { return moreSevere(otherStatus) ? this : otherStatus; }
+
     public String toString() {
         return getText();
     }

@@ -13,11 +13,10 @@ public class Main {
         //LifeSupportSubsystem needs to deal with whatever issues pop up, but has lots of breaks causing the crew to die
         //Events: Initialization, Steady State, Daybreak, Nightfall, New Arrival, Micropuncture
         initialize();
-        System.out.println(systems.get(0).check());
-        updateCycle();
-        System.out.println(systems.get(0).check());
-
-
+        for (int i = 0; i < 20; i++) {
+            System.out.println(systems.get(0).check());
+            updateCycle();
+        }
         //Life Support
         //Heating/Cooling, Electricity, Water, Food, Air
         //Food taken care of by a huge bin of freeze dried deliciousness
@@ -69,17 +68,18 @@ public class Main {
 
         /*Start adding components*/
 
-        Component heatRadiator = new Component("Heat Radiator","Radiator Setting",StatusCode.NOMINAL,0.0,100.0,1,0,extendRadiator,retractRadiator,externalThermometer,null);
+        Component heatRadiator = new Component("Heat Radiator","Radiator Setting",0.0,100.0,-1,0,extendRadiator,retractRadiator,externalThermometer,null);
         allComponents.add(heatRadiator);
-        Component airConditioner = new Component("Air Conditioner","AC Setting",StatusCode.NOMINAL,0.0,100.0,2,-2,increaseAC,decreaseAC,internalThermometer,externalThermometer);
+        Component airConditioner = new Component("Air Conditioner","AC Setting",0.0,100.0,-2,2,increaseAC,decreaseAC,internalThermometer,externalThermometer);
         allComponents.add(airConditioner);
-        Component heater = new Component("Heater","Heater Setting",StatusCode.NOMINAL,0.0,100.0,2,1,increaseHeater,decreaseHeater,internalThermometer,externalThermometer);
+        Component heater = new Component("Heater","Heater Setting",0.0,100.0,2,1,increaseHeater,decreaseHeater,internalThermometer,externalThermometer);
         allComponents.add(heater);
 
-        LifeSupportSubsystem temperatureControl = new LifeSupportSubsystem("Temperature Control",StatusCode.NOMINAL);
-        temperatureControl.add(heatRadiator);
-        temperatureControl.add(airConditioner);
+        LifeSupportSubsystem temperatureControl = new LifeSupportSubsystem("Temperature Control");
         temperatureControl.add(heater);
+        temperatureControl.add(airConditioner);
+        temperatureControl.add(heatRadiator);
+
 
         Computer lifeSupportGovernor = new Computer(temperatureControl);
         temperatureControl.add(lifeSupportGovernor);
@@ -90,6 +90,31 @@ public class Main {
     private static void updateCycle() {
         //Assumes any events have already happened
         //Update the governors for each life support system
+        Parameter internalTemp = e.getParameter("Internal Temperature");
+        Parameter externalTemp = e.getParameter("External Temperature");
+
+        //Generate "side effect" internal heat from various systems that aren't explicitly part of temperature control
+        //Basically, everything electronic generates *some* heat
+        System.out.println("Internal temperature before side-effect changes: " + internalTemp.getValue());
+        System.out.println("External temperature before side-effect changes: " + externalTemp.getValue());
+        internalTemp.increaseValue(e.InternalLatentHeatGenerationInDegreesK);
+
+        //Do a heat exchange between inside and outside
+        double heatExchange = (internalTemp.getValue() - externalTemp.getValue())/e.HeatExchangeFactor;
+        internalTemp.decreaseValue(heatExchange);
+        externalTemp.increaseValue(heatExchange);
+
+        //Also some natural radiation of heat to the background level of 0K
+        externalTemp.decreaseValue(e.ExternalLatentHeatDissipationInDegreesK);
+        System.out.println("Internal temperature after side-effect changes: " + internalTemp.getValue());
+        System.out.println("External temperature after side-effect changes: " + externalTemp.getValue());
+
+
+
+
+        //Update control settings with governor
+        System.out.println("Internal temperature before governor updates: " + internalTemp.getValue());
+        System.out.println("External temperature before governor updates: " + externalTemp.getValue());
         for (LifeSupportSubsystem l : systems) {
             l.updateModule();
         }
@@ -104,18 +129,7 @@ public class Main {
                 c.getSecondarySensor().getParameterLimit().getParameter().increaseValue(amountToChangeSecondaryParameter);
             }
         }
-        Parameter internalTemp = e.getParameter("Internal Temperature");
-        Parameter externalTemp = e.getParameter("External Temperature");
-        //Generate "side effect" internal heat from various systems that aren't explicitly part of temperature control
-        //Basically, everything electronic generates *some* heat
-        internalTemp.increaseValue(e.InternalLatentHeatGenerationInDegreesK);
-
-        //Do a heat exchange between inside and outside
-        double heatExchange = (internalTemp.getValue() - externalTemp.getValue())/e.HeatExchangeFactor;
-        internalTemp.decreaseValue(heatExchange);
-        externalTemp.increaseValue(heatExchange);
-
-        //Also some natural radiation of heat to the background level of 0K
-        externalTemp.decreaseValue(e.ExternalLatentHeatDissipationInDegreesK);
+        System.out.println("Internal temperature after settings take effect: " + internalTemp.getValue());
+        System.out.println("External temperature after settings take effect: " + externalTemp.getValue());
     }
 }

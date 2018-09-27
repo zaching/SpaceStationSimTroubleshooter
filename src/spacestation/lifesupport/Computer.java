@@ -15,32 +15,13 @@ public class Computer {
         this.cachedParentSensors = parentSystem.getSensors();
     }
 
-    public StatusCode checkStatus() {
-        boolean problemFound = false;
-        for (Sensor s: cachedParentSensors) {
-            if (s.outsideDesired()) {
-                ParentSystem.downgradeStatus(StatusCode.WARNING);
-                problemFound = true;
-            }
-            if (s.outsideSafe()) {
-                ParentSystem.downgradeStatus(StatusCode.CRITICAL);
-                problemFound = true;
-            }
-        }
-        if (!problemFound) {
-            ParentSystem.upgradeStatus(StatusCode.NOMINAL);
-        }
-        return ParentSystem.getStatus();
-    }
+
 
     public void updateModule() {
-        //BUG: If there are ways to change variables but status isn't updated, then this could drop out prematurely
-        //BUG: alternately, checkStatus has side effects that could make a fun bug
-        if (checkStatus() == StatusCode.NOMINAL) {
-            return;
-        }
         for (Component c : ParentSystem.getComponentsWithProblems()) {
-            double deviation = c.getDeviationFromDesired();
+            double directionOfSetting = c.SettingPrimaryImpact/Math.abs(c.SettingPrimaryImpact);
+            double deviation = c.getDeviationFromDesired()*directionOfSetting;
+            System.out.println(c.getName() + "'s deviation from desired: " + deviation);
             //BUG: Flipping if the controls go up or down would make for an easy bug to find/fix
             if (deviation > 0) {
                 c.decreaseControl(deviation);

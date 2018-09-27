@@ -10,14 +10,12 @@ public class Component {
     private final Control IncreaseController;
     private final Control DecreaseController;
     private double CurrentSetting;
-    private StatusCode Status;
     public final double SettingPrimaryImpact; //How many units the target parameter changes for each unit of setting change
     public final double SettingSecondaryImpact; //How many units the secondary parameter changes (only relevant if component has side effects)
 
-    public Component(String name, String settingName, StatusCode status, double minSetting, double maxSetting, double settingPrimaryImpact, double settingSecondaryImpact, Control increaseController, Control decreaseController, Sensor primarySensor, Sensor secondarySensor) {
+    public Component(String name, String settingName, double minSetting, double maxSetting, double settingPrimaryImpact, double settingSecondaryImpact, Control increaseController, Control decreaseController, Sensor primarySensor, Sensor secondarySensor) {
         this.Name = name;
         this.SettingName = settingName;
-        this.Status = status;
         this.MinSetting = minSetting;
         this.MaxSetting = maxSetting;
         this.SettingPrimaryImpact = settingPrimaryImpact;
@@ -28,8 +26,8 @@ public class Component {
         this.SecondarySensor = secondarySensor;
     }
 
-    public String check() {
-        String str = getName() + " is " + Status + "\n";
+    public String sitRep() {
+        String str = getName() + " is " + getStatus() + "\n";
         str+= SettingName + ": " + getCurrentSetting() + "\n\n";
         str += "  Sensors:\n";
         str += " " + PrimarySensor.getName() + ": " + PrimarySensor.getReading() + "\n";
@@ -42,23 +40,20 @@ public class Component {
         return str;
     }
 
-    public void updateStatus() {
+    public StatusCode getStatus() {
         StatusCode s = StatusCode.NOMINAL;
-        //BUG: removing the lessSevere getStatus or flipping one to moreSevere could make a nice bug
-        if (s.lessSevere(IncreaseController.getStatus()))  { s = IncreaseController.getStatus();}
-        if (s.lessSevere(DecreaseController.getStatus()))  { s = DecreaseController.getStatus();}
-        if (s.lessSevere(PrimarySensor.getStatus()))  { s = PrimarySensor.getStatus();}
-        if (s.lessSevere(SecondarySensor.getStatus()))  { s = SecondarySensor.getStatus();}
-        Status = s;
+        s = s.getWorseStatus(IncreaseController.getStatus());
+        s = s.getWorseStatus(DecreaseController.getStatus());
+        s = s.getWorseStatus(PrimarySensor.getStatus());
+        if (SecondarySensor != null) {
+            s = s.getWorseStatus(SecondarySensor.getStatus());
+        }
+        return s;
     }
 
     public void repairControls() {
         if (IncreaseController.getStatus().moreSevere(StatusCode.NOMINAL)) IncreaseController.repair();
         if (DecreaseController.getStatus().moreSevere(StatusCode.NOMINAL)) DecreaseController.repair();
-    }
-
-    public StatusCode getStatus() {
-        return Status;
     }
 
     public StatusCode increaseControl(double value) {

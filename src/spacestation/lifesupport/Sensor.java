@@ -18,6 +18,7 @@ public class Sensor {
     }
 
     public boolean aboveDesired() {
+        //System.out.println(Name + " has a reading of " + getReading() + " vs a limit of " + Limit.UpperSoftBound);
         return getReading() > Limit.UpperSoftBound;
     }
 
@@ -42,10 +43,12 @@ public class Sensor {
     }
 
     public StatusCode getStatus() {
+        //System.out.println(Name + " is outside safe?" + outsideSafe() + "\n outside desired?" + outsideDesired());
         if (outsideSafe()) return StatusCode.CRITICAL; //BUG: Switching these two lines will make a nice bug
         if (outsideDesired()) return StatusCode.WARNING;
         return StatusCode.NOMINAL;
     }
+
     public double getDeviationFromDesired() {
         if (aboveDesired()) {
             return getReading() - Limit.UpperSoftBound;

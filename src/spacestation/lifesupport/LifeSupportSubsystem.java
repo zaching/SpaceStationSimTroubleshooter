@@ -6,19 +6,17 @@ public class LifeSupportSubsystem {
     private final String Name;
     private final ArrayList<Component> SubComponents = new ArrayList<>();
     private Computer Governor;
-    private StatusCode Status;
 
-    public LifeSupportSubsystem(String name, StatusCode status) {
+    public LifeSupportSubsystem(String name) {
         this.Name = name;
-        this.Status = status;
     }
 
     public String check() {
         String str = "\n****************************************\n";
-        str += "     " + getName() + " is " + Status + "\n";
+        str += "     " + getName() + " is " + getStatus() + "\n";
         str += "****************************************\n\n";
         for (Component c : SubComponents) {
-            str += c.check() + "\n";
+            str += c.sitRep() + "\n";
         }
         str += "****************************************\n";
         str += "****************************************\n";
@@ -42,18 +40,6 @@ public class LifeSupportSubsystem {
 
     public void add(Computer governor) { this.Governor = governor; }
 
-    public void downgradeStatus(StatusCode newStatus) {
-        if (newStatus.moreSevere(Status)) {
-            Status = newStatus;
-        }
-    }
-
-    public void upgradeStatus(StatusCode newStatus) {
-        if (newStatus.lessSevere(Status)) {
-            Status = newStatus;
-        }
-    }
-
     public ArrayList<Sensor> getSensors() {
         ArrayList<Sensor> ret = new ArrayList<>();
         for (Component c : SubComponents) {
@@ -71,7 +57,11 @@ public class LifeSupportSubsystem {
     }
 
     public StatusCode getStatus() {
-        return Status;
+        StatusCode s = StatusCode.NOMINAL;
+        for (Component c : SubComponents) {
+            s = s.getWorseStatus(c.getStatus());
+        }
+        return s;
     }
 
     public String getName() {
