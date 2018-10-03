@@ -1,21 +1,30 @@
 package spacestation.lifesupport;
 
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 
 public class Main {
 
-    private static final ArrayList<LifeSupportSubsystem> systems = new ArrayList<>();
+    private static final Set<LifeSupportSubsystem> systems = new HashSet<>();
     private static final Environment e = new Environment();
-    private static final ArrayList<Component> allComponents = new ArrayList<>();
+    private static final Set<Component> allComponents = new HashSet<>();
 
     public static void main(String[] args) {
         //A simulation of a space station w/ Life Support
         //LifeSupportSubsystem needs to deal with whatever issues pop up, but has lots of breaks causing the crew to die
         //Events: Initialization, Steady State, Daybreak, Nightfall, New Arrival, Micropuncture
         initialize();
-        for (int i = 0; i < 20; i++) {
-            System.out.println(systems.get(0).check());
+        int numRounds = 50;
+        for (int i = 0; i < numRounds; i++) {
+            LifeSupportSubsystem sys = systems.iterator().next();
+            System.out.println("Round " + i + ":\n" + sys.getQuickSummary());
             updateCycle();
+            if (sys.getStatus() == StatusCode.CRITICAL) {
+                System.out.println("Critical failure at the end of round " + i + "; you lose!");
+                System.out.println("Final:\n" + sys.getQuickSummary());
+                i = numRounds;
+            }
         }
         //Life Support
         //Heating/Cooling, Electricity, Water, Food, Air
@@ -95,8 +104,8 @@ public class Main {
 
         //Generate "side effect" internal heat from various systems that aren't explicitly part of temperature control
         //Basically, everything electronic generates *some* heat
-        System.out.println("Internal temperature before side-effect changes: " + internalTemp.getValue());
-        System.out.println("External temperature before side-effect changes: " + externalTemp.getValue());
+        //System.out.println("Internal temperature before side-effect changes: " + internalTemp.getValue());
+        //System.out.println("External temperature before side-effect changes: " + externalTemp.getValue());
         internalTemp.increaseValue(e.InternalLatentHeatGenerationInDegreesK);
 
         //Do a heat exchange between inside and outside
@@ -106,15 +115,15 @@ public class Main {
 
         //Also some natural radiation of heat to the background level of 0K
         externalTemp.decreaseValue(e.ExternalLatentHeatDissipationInDegreesK);
-        System.out.println("Internal temperature after side-effect changes: " + internalTemp.getValue());
-        System.out.println("External temperature after side-effect changes: " + externalTemp.getValue());
+        //System.out.println("Internal temperature after side-effect changes: " + internalTemp.getValue());
+        //System.out.println("External temperature after side-effect changes: " + externalTemp.getValue());
 
 
 
 
         //Update control settings with governor
-        System.out.println("Internal temperature before governor updates: " + internalTemp.getValue());
-        System.out.println("External temperature before governor updates: " + externalTemp.getValue());
+        //System.out.println("Internal temperature before governor updates: " + internalTemp.getValue());
+        //System.out.println("External temperature before governor updates: " + externalTemp.getValue());
         for (LifeSupportSubsystem l : systems) {
             l.updateModule();
         }
@@ -123,13 +132,13 @@ public class Main {
         for (Component c : allComponents) {
             double amountToChangePrimaryParameter = c.getCurrentSetting()* c.SettingPrimaryImpact;
             c.getPrimarySensor().getParameterLimit().getParameter().increaseValue(amountToChangePrimaryParameter);
-            //BUG: Secondary sensor is null for many components, could be an easy bug to have an NPE if I remove this check
+            //BUG: Secondary sensor is null for many components, could be an easy bug to have an NPE if I remove this sitRep
             if (c.getSecondarySensor() != null) {
                 double amountToChangeSecondaryParameter = c.getCurrentSetting() * c.SettingSecondaryImpact;
                 c.getSecondarySensor().getParameterLimit().getParameter().increaseValue(amountToChangeSecondaryParameter);
             }
         }
-        System.out.println("Internal temperature after settings take effect: " + internalTemp.getValue());
-        System.out.println("External temperature after settings take effect: " + externalTemp.getValue());
+        //System.out.println("Internal temperature after settings take effect: " + internalTemp.getValue());
+        //System.out.println("External temperature after settings take effect: " + externalTemp.getValue());
     }
 }

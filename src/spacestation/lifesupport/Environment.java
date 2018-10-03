@@ -1,15 +1,17 @@
 package spacestation.lifesupport;
 
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 
 public class Environment {
-    private ArrayList<Parameter> parameters;
+    private final Set<Parameter> parameters = new HashSet<>();
     public final double HeatExchangeFactor = 5.0;
     public final double InternalLatentHeatGenerationInDegreesK = 10.0;
     public final double ExternalLatentHeatDissipationInDegreesK = 5.0;
 
     public Environment() {
-        parameters = new ArrayList<>();
+
     }
 
     public void add(Parameter p) {
@@ -26,4 +28,3 @@ public class Environment {
     }
 
 }
-//Some extra comment that doesn't matter

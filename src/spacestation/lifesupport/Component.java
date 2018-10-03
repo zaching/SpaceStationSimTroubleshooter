@@ -12,6 +12,7 @@ public class Component {
     private double CurrentSetting;
     public final double SettingPrimaryImpact; //How many units the target parameter changes for each unit of setting change
     public final double SettingSecondaryImpact; //How many units the secondary parameter changes (only relevant if component has side effects)
+    private final int DigitsPrecision=2;
 
     public Component(String name, String settingName, double minSetting, double maxSetting, double settingPrimaryImpact, double settingSecondaryImpact, Control increaseController, Control decreaseController, Sensor primarySensor, Sensor secondarySensor) {
         this.Name = name;
@@ -30,9 +31,9 @@ public class Component {
         String str = getName() + " is " + getStatus() + "\n";
         str+= SettingName + ": " + getCurrentSetting() + "\n\n";
         str += "  Sensors:\n";
-        str += " " + PrimarySensor.getName() + ": " + PrimarySensor.getReading() + "\n";
+        str += " " + PrimarySensor.getName() + ": " + PrimarySensor.getReading() + "; Status: " + PrimarySensor.getStatus() + "\n";
         if (SecondarySensor != null) {
-            str += "  " + SecondarySensor.getName() + ": " + SecondarySensor.getReading() + "\n";
+            str += "  " + SecondarySensor.getName() + ": " + SecondarySensor.getReading() + "; Status: " + SecondarySensor.getStatus() + "\n";
         }
         str += "\n  Controls:\n";
         str += "  " + IncreaseController.getName() + ": " + IncreaseController.getStatus() + "\n";
@@ -40,6 +41,10 @@ public class Component {
         return str;
     }
 
+    public String getQuickSummary() {
+        String str = "";
+        return str;
+    }
     public StatusCode getStatus() {
         StatusCode s = StatusCode.NOMINAL;
         s = s.getWorseStatus(IncreaseController.getStatus());
@@ -64,13 +69,28 @@ public class Component {
         return incrementControl(DecreaseController,value);
     }
 
+    public void dampenControls() {
+        double deviation = getDeviationFromOptimal(); //amount above/below target temp
+        if (deviation*getDirectionOfSetting() > 0) {
+            decreaseControl(Math.abs(deviation));
+        }
+    }
     public double getDeviationFromDesired() {
+        //System.out.println("Checking \"" + PrimarySensor.getName() + "\" in component: " + getName());
         return PrimarySensor.getDeviationFromDesired();
     }
 
+    public double getDeviationFromOptimal() {
+        return PrimarySensor.getDeviationFromOptimal();
+    }
+
+    public int getDirectionOfSetting() {
+        return (int)(SettingPrimaryImpact/Math.abs(SettingPrimaryImpact));
+    }
+
     private StatusCode incrementControl(Control c, double value) {
-        value = Math.abs(value);
-        CurrentSetting += c.increment(value);
+        value = Math.max(0,value); //BUG: If you use Math.abs instead, it would be easy to send the opposite signal
+        CurrentSetting += roundToPrecision(c.increment(value));
         //If an invalid setting was sent, return a warning to the sender
         if (getCurrentSetting() >= MinSetting && value <= MaxSetting) {
             return StatusCode.NOMINAL;
@@ -80,19 +100,26 @@ public class Component {
     }
 
     private void fixSetting() {
-        CurrentSetting = Math.min(Math.max(getCurrentSetting(), MinSetting), MaxSetting);
+        CurrentSetting = roundToPrecision(Math.min(Math.max(getCurrentSetting(), MinSetting), MaxSetting));
     }
 
     public Sensor getPrimarySensor() { return PrimarySensor; }
 
     public Sensor getSecondarySensor() { return SecondarySensor; }
 
+    public StatusCode getIncreaseControllerStatus() { return IncreaseController.getStatus(); }
+
+    public StatusCode getDecreaseControllerStatus() { return DecreaseController.getStatus(); }
+
     public double getCurrentSetting() {
-        return this.CurrentSetting;
+        return roundToPrecision(this.CurrentSetting);
     }
 
     public String getName() {
         return this.Name;
     }
 
+    public double roundToPrecision(double value) {
+        return Math.floor(value * Math.pow(10,DigitsPrecision))/Math.pow(10,DigitsPrecision);
+    }
 }

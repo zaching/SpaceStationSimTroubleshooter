@@ -1,17 +1,19 @@
 package spacestation.lifesupport;
 
-import java.util.ArrayList;
+
+import java.util.HashSet;
+import java.util.Set;
 
 public class LifeSupportSubsystem {
     private final String Name;
-    private final ArrayList<Component> SubComponents = new ArrayList<>();
+    private final Set<Component> SubComponents = new HashSet<>();
     private Computer Governor;
 
     public LifeSupportSubsystem(String name) {
         this.Name = name;
     }
 
-    public String check() {
+    public String sitRep() {
         String str = "\n****************************************\n";
         str += "     " + getName() + " is " + getStatus() + "\n";
         str += "****************************************\n\n";
@@ -24,8 +26,27 @@ public class LifeSupportSubsystem {
         return str;
     }
 
-    public ArrayList<Component> getComponentsWithProblems() {
-        ArrayList<Component> ret = new ArrayList<>();
+    public String getQuickSummary() {
+        String str = getName() + ": " + getStatus() + "\n";
+        for (Sensor s : getSensors()) {
+            str += s.getName() + ": " + s.getReading() + " (" + s.getStatus() + ")\n";
+        }
+        for (Component c : SubComponents) {
+            str += c.getQuickSummary();
+            StatusCode increaseStatus = c.getIncreaseControllerStatus();
+            if (increaseStatus.moreSevere(StatusCode.NOMINAL)) {
+                str += c.getName() + " has an increase control w/ status: " + increaseStatus + "\n";
+            }
+            StatusCode decreaseStatus = c.getDecreaseControllerStatus();
+            if (decreaseStatus.moreSevere(StatusCode.NOMINAL)) {
+                str += c.getName() + " has an decrease control w/ status: " + decreaseStatus + "\n";
+            }
+        }
+        return str;
+    }
+
+    public Set<Component> getComponentsWithProblems() {
+        Set<Component> ret = new HashSet<>();
         for (Component c : SubComponents) {
             if (c.getStatus().moreSevere(StatusCode.NOMINAL)) {
                 ret.add(c);
@@ -34,14 +55,18 @@ public class LifeSupportSubsystem {
         return ret;
     }
 
+    public Set<Component> getComponents() {
+        return SubComponents;
+    }
+
     public void add(Component c) {
         SubComponents.add(c);
     }
 
     public void add(Computer governor) { this.Governor = governor; }
 
-    public ArrayList<Sensor> getSensors() {
-        ArrayList<Sensor> ret = new ArrayList<>();
+    public Set<Sensor> getSensors() {
+        HashSet<Sensor> ret = new HashSet<>();
         for (Component c : SubComponents) {
             ret.add(c.getPrimarySensor());
             //BUG: Another good place for an NPE, this one could be fun b/c it might actually add null to the ArrayList causing weird downstream issues!

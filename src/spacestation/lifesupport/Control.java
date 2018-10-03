@@ -27,7 +27,9 @@ public class Control {
     }
 
     public void repair() {
+        System.out.print("Repairing " + Name +"; was: " + Status);
         if (Status.lessSevere(StatusCode.CRITICAL)) Status = StatusCode.NOMINAL;
+        System.out.println("; is now: " + Status);
     }
 
     public double getIncrementSize() {
