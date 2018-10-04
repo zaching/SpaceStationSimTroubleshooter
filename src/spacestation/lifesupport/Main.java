@@ -141,6 +141,6 @@ public class Main {
     }
 
     public static void breakComponents(int currentRound) {
-        breakComponent(currentRound,40,"Heat Radiator",true,10);
+        breakComponent(currentRound,40,"Heat Radiator",true,5); //Will cause a crit fail @ Round 50 if you switch this to 6 rounds
     }
 }
