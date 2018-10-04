@@ -22,7 +22,7 @@ public class Computer {
                 c.decreaseControl(Math.abs(neededCorrection));
             }
             if (neededCorrection < 0) {
-                //c.increaseControl(Math.abs(neededCorrection));
+                c.increaseControl(Math.abs(neededCorrection));
             }
             //BUG: I think we could have a 0 comparison problem with double rounding imprecision
             if (neededCorrection == 0.0) {

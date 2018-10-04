@@ -33,6 +33,9 @@ public class LifeSupportSubsystem {
         }
         for (Component c : SubComponents) {
             str += c.getQuickSummary();
+        }
+        str = str.substring(0,str.length()-2) +"\n";
+        for (Component c : SubComponents) {
             StatusCode increaseStatus = c.getIncreaseControllerStatus();
             if (increaseStatus.moreSevere(StatusCode.NOMINAL)) {
                 str += c.getName() + " has an increase control w/ status: " + increaseStatus + "\n";

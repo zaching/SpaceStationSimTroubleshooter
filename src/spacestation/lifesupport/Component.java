@@ -42,8 +42,7 @@ public class Component {
     }
 
     public String getQuickSummary() {
-        String str = "";
-        return str;
+        return getName() + " (" + getCurrentSetting() + "), ";
     }
     public StatusCode getStatus() {
         StatusCode s = StatusCode.NOMINAL;
@@ -67,6 +66,14 @@ public class Component {
 
     public StatusCode decreaseControl(double value) {
         return incrementControl(DecreaseController,value);
+    }
+
+    public void increaseControlMalfunction(int roundsBroken) {
+        IncreaseController.malfunction(roundsBroken);
+    }
+
+    public void decreaseControlMalfunction(int roundsBroken) {
+        DecreaseController.malfunction(roundsBroken);
     }
 
     public void dampenControls() {

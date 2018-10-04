@@ -5,6 +5,7 @@ public class Control {
     private final double SettingIncrement;
     private final int Direction;
     private StatusCode Status = StatusCode.NOMINAL;
+    private int RoundsBroken = 0;
 
     public Control(String name, double settingIncrement, int direction) {
         this.Name = name;
@@ -16,9 +17,10 @@ public class Control {
         return this.Status;
     }
 
-    public void malfunction() {
+    public void malfunction(int roundsBroken) {
         if (Status.lessSevere(StatusCode.CRITICAL)) {
             Status = StatusCode.ERROR;
+            this.RoundsBroken += roundsBroken;
         }
     }
 
@@ -27,9 +29,22 @@ public class Control {
     }
 
     public void repair() {
-        System.out.print("Repairing " + Name +"; was: " + Status);
-        if (Status.lessSevere(StatusCode.CRITICAL)) Status = StatusCode.NOMINAL;
-        System.out.println("; is now: " + Status);
+        System.out.println("Repairing \"" + Name +"\".  Before repairs it is: " + Status);
+        System.out.println("Attempting repairs...");
+        if (Status.lessSevere(StatusCode.CRITICAL)) {
+            RoundsBroken--;
+            if (RoundsBroken <= 0) {
+                Status = StatusCode.NOMINAL;
+                RoundsBroken = 0;
+                System.out.println("Repairs are completed, it is now: " + Status + "\n");
+            }
+            else {
+                System.out.println("Repairs are underway, but \"" + Name + "\" will still take " + RoundsBroken + " rounds to be repaired.\n");
+            }
+        }
+        else {
+            System.out.println("Repair failed because \"" + Name + "\" was unrepairable");
+        }
     }
 
     public double getIncrementSize() {
