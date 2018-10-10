@@ -20,11 +20,27 @@ public class Sensor {
 
     public boolean aboveDesired() {
         //System.out.println(Name + " has a reading of " + getReading() + " vs a limit of " + Limit.UpperSoftBound);
-        return getReading() > Limit.UpperSoftBound;
+        double currentTemp = getReading();
+        return currentTemp > Limit.UpperSoftBound;
     }
 
     public boolean belowDesired() {
-        return getReading() < Limit.LowerSoftBound;
+        double currentTemp = getReading();
+        return currentTemp < Limit.LowerSoftBound;
+    }
+
+    public boolean willBeAboveDesired(double amtTempWillChange) {
+        double currentTemp = getReading();
+        return currentTemp + amtTempWillChange > Limit.UpperSoftBound;
+    }
+
+    public boolean willBeBelowDesired(double amtTempWillChange) {
+        double currentTemp = getReading();
+        return currentTemp + amtTempWillChange < Limit.LowerSoftBound;
+    }
+
+    public boolean willBeOutsideDesired(double amtTempWillChange) {
+        return willBeBelowDesired(amtTempWillChange) || willBeAboveDesired(amtTempWillChange);
     }
 
     public boolean aboveSafe() {
@@ -50,22 +66,34 @@ public class Sensor {
         return StatusCode.NOMINAL;
     }
 
-    public double getDeviationFromDesired() {
+    public double getDeviationFromDesired(double amtTempWillChange) {
         //System.out.println(aboveDesired());
-        if (aboveDesired()) {
+        if (willBeAboveDesired(amtTempWillChange)) {
             //System.out.println("Sensor " + Name + " is above desired by " + (getReading()-Limit.UpperSoftBound));
-            return getReading() - Limit.UpperSoftBound;
+            double currentTemp = getReading();
+            return currentTemp - Limit.UpperSoftBound;
         }
-        if (belowDesired()) {
+        if (willBeBelowDesired(amtTempWillChange)) {
             //System.out.println("Sensor " + Name + " is below desired by " + (getReading()-Limit.LowerSoftBound));
-            return getReading() - Limit.LowerSoftBound;
+            double currentTemp = getReading();
+            return currentTemp - Limit.LowerSoftBound;
         }
         return 0;
     }
 
     public double getDeviationFromOptimal() {
-        double optimal = (Limit.UpperSoftBound + Limit.LowerSoftBound)/2.0;
+        double optimal = getOptimal();
         return getReading() - optimal;
+    }
+
+    public double getDeviationFromOptimal(double amtTempWillChange) {
+        double optimal = getOptimal();
+        double currentTemp = getReading();
+        return currentTemp + amtTempWillChange - optimal;
+    }
+
+    public double getOptimal() {
+        return (Limit.UpperSoftBound + Limit.LowerSoftBound)/2.0;
     }
     public ParameterLimit getParameterLimit() {
         return this.Limit;

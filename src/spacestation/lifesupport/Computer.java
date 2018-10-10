@@ -4,18 +4,15 @@ public class Computer {
     //This is the brains of a life support system
     //Should be able to respond to different external conditions
 
-    private final LifeSupportSubsystem ParentSystem;
+    private final LifeSupportSystem ParentSystem;
 
-
-    public Computer(LifeSupportSubsystem parentSystem) {
+    public Computer(LifeSupportSystem parentSystem) {
         this.ParentSystem = parentSystem;
     }
 
-
-
     public void updateModule() {
         for (Component c : ParentSystem.getComponents()) {
-            double neededCorrection = c.getDeviationFromDesired()*c.getDirectionOfSetting();
+            double neededCorrection = c.willBeOutsideDesired() ? c.getPredictedDeviationFromOptimal()*c.getDirectionOfSetting() : 0;
             //System.out.println(c.getName() + "'s needed correction to " + c.getPrimarySensor().getName() + " is: " + (neededCorrection * -1));
             //BUG: Flipping if the controls go up or down would make for an easyish bug to find/fix
             if (neededCorrection > 0) {

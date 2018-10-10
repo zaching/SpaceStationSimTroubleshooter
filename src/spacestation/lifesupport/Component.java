@@ -84,11 +84,26 @@ public class Component {
     }
     public double getDeviationFromDesired() {
         //System.out.println("Checking \"" + PrimarySensor.getName() + "\" in component: " + getName());
-        return PrimarySensor.getDeviationFromDesired();
+        double amtTempWillChange = calculateTempChange();
+        return PrimarySensor.getDeviationFromDesired(amtTempWillChange);
+    }
+
+    public boolean willBeOutsideDesired() {
+        double amtTempWillChange = calculateTempChange();
+        return PrimarySensor.willBeOutsideDesired(amtTempWillChange);
+    }
+
+    public double calculateTempChange() {
+        return CurrentSetting * SettingPrimaryImpact;
     }
 
     public double getDeviationFromOptimal() {
         return PrimarySensor.getDeviationFromOptimal();
+    }
+
+    public double getPredictedDeviationFromOptimal() {
+        double amtTempWillChange = calculateTempChange();
+        return PrimarySensor.getDeviationFromOptimal(amtTempWillChange);
     }
 
     public int getDirectionOfSetting() {

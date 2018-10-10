@@ -3,7 +3,7 @@ package spacestation.lifesupport;
 public enum StatusCode {
     NOMINAL("Nominal",1),
     WARNING("Warning",2),
-    ERROR("Error",3),
+    ERROR("Broken",3),
     CRITICAL("Critical Failure",4);
 
 

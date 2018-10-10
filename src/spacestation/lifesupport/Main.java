@@ -6,20 +6,24 @@ import java.util.Set;
 
 public class Main {
 
-    private static final Set<LifeSupportSubsystem> systems = new HashSet<>();
+    private static final Set<LifeSupportSystem> systems = new HashSet<>();
     private static final Environment e = new Environment(5,10,5);
     private static final Set<Component> allComponents = new HashSet<>();
 
     public static void main(String[] args) {
         //A simulation of a space station w/ Life Support
-        //LifeSupportSubsystem needs to deal with whatever issues pop up, but has lots of breaks causing the crew to die
+        //LifeSupportSystem needs to deal with whatever issues pop up, but has lots of breaks causing the crew to die
         //Events: Initialization, Steady State, Daybreak, Nightfall, New Arrival, Micropuncture
         initialize();
         int numRounds = 100;
         for (int i = 0; i < numRounds; i++) {
-            LifeSupportSubsystem sys = systems.iterator().next();
+            if (i == -1) {
+                System.out.print(""); //useful for adding a breakpoint for a given round
+            }
+            LifeSupportSystem sys = systems.iterator().next();
             System.out.println("Round " + i + ":");
             breakComponents(i);
+            changeTemperatures(i);
             System.out.println(sys.getQuickSummary());
             updateCycle();
             if (sys.getStatus() == StatusCode.CRITICAL) {
@@ -36,7 +40,7 @@ public class Main {
         e.add(externalTemp);
         e.add(internalTemp);
 
-        ParameterLimit externalTempLimit = new ParameterLimit(externalTemp,300,200,400,200);
+        ParameterLimit externalTempLimit = new ParameterLimit(externalTemp,300,225,400,200);
         ParameterLimit internalTempLimit = new ParameterLimit(internalTemp,300,288,310,275);
 
         /*****Temperature Control*****/
@@ -64,7 +68,7 @@ public class Main {
         allComponents.add(heater);
 
         //Then group those into a life support system
-        LifeSupportSubsystem temperatureControl = new LifeSupportSubsystem("Temperature Control");
+        LifeSupportSystem temperatureControl = new LifeSupportSystem("Temperature Control");
         temperatureControl.add(heater);
         temperatureControl.add(airConditioner);
         temperatureControl.add(heatRadiator);
@@ -104,7 +108,7 @@ public class Main {
         //Update control settings with governor
         //System.out.println("Internal temperature before governor updates: " + internalTemp.getValue());
         //System.out.println("External temperature before governor updates: " + externalTemp.getValue());
-        for (LifeSupportSubsystem l : systems) {
+        for (LifeSupportSystem l : systems) {
             l.updateModule();
         }
         //Execute changes to the environment from setting changes
@@ -142,5 +146,10 @@ public class Main {
 
     public static void breakComponents(int currentRound) {
         breakComponent(currentRound,40,"Heat Radiator",true,5); //Will cause a crit fail @ Round 50 if you switch this to 6 rounds
+    }
+
+    public static void changeTemperatures(int currentRound) {
+        if (currentRound >= 50 && currentRound <= 55) e.getParameter("External Temperature").increaseValue(10); //Increased solar emissions
+        if (currentRound >= 100 && currentRound <=110) e.getParameter("Internal Temperature").increaseValue(2); //Internal system creates some heat
     }
 }

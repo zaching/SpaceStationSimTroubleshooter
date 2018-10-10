@@ -4,12 +4,12 @@ package spacestation.lifesupport;
 import java.util.HashSet;
 import java.util.Set;
 
-public class LifeSupportSubsystem {
+public class LifeSupportSystem {
     private final String Name;
     private final Set<Component> SubComponents = new HashSet<>();
     private Computer Governor;
 
-    public LifeSupportSubsystem(String name) {
+    public LifeSupportSystem(String name) {
         this.Name = name;
     }
 
