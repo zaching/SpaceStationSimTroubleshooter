@@ -52,10 +52,10 @@ public class Main {
         //First, lets create a bunch of sensors and controls for heat regulation
         Sensor externalThermometer = new Sensor("External Thermometer",externalTempLimit,200,500); //-100 degF to 440 degF
         Sensor internalThermometer = new Sensor("Internal Thermometer",internalTempLimit,200,500); //-100 degF to 440 degF
-        Control extendRadiator = new Control("Extend Radiator",10,1);
-        Control retractRadiator = new Control("Retract Radiator",5,-1);
-        Control increaseAC = new Control("Increase Air Conditioning",5,1);
-        Control decreaseAC = new Control("Decrease Air Conditioning",20,-1);
+        Control extendRadiator = new Control("Extend Radiator",10,-1);
+        Control retractRadiator = new Control("Retract Radiator",5,1);
+        Control increasedAC = new Control("Increase Air Conditioning",5,1);
+        Control decreasedAC = new Control("Decrease Air Conditioning",20,-1);
         Control increaseHeater = new Control("Increase Heater",5,1);
         Control decreaseHeater = new Control("Decrease Heater",100,-1);
 
@@ -116,11 +116,8 @@ public class Main {
         for (Component c : allComponents) {
             double amountToChangePrimaryParameter = c.getCurrentSetting()* c.SettingPrimaryImpact;
             c.getPrimarySensor().getParameterLimit().getParameter().increaseValue(amountToChangePrimaryParameter);
-            //BUG: Secondary sensor is null for many components, could be an easy bug to have an NPE if I remove this sitRep
-            if (c.getSecondarySensor() != null) {
-                double amountToChangeSecondaryParameter = c.getCurrentSetting() * c.SettingSecondaryImpact;
-                c.getSecondarySensor().getParameterLimit().getParameter().increaseValue(amountToChangeSecondaryParameter);
-            }
+            double amountToChangeSecondaryParameter = c.getCurrentSetting() * c.SettingSecondaryImpact;
+            c.getSecondarySensor().getParameterLimit().getParameter().increaseValue(amountToChangeSecondaryParameter);
         }
         //System.out.println("Internal temperature after settings take effect: " + internalTemp.getValue());
         //System.out.println("External temperature after settings take effect: " + externalTemp.getValue());

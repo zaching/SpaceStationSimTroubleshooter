@@ -14,14 +14,12 @@ public class Computer {
         for (Component c : ParentSystem.getComponents()) {
             double neededCorrection = c.willBeOutsideDesired() ? c.getPredictedDeviationFromOptimal()*c.getDirectionOfSetting() : 0;
             //System.out.println(c.getName() + "'s needed correction to " + c.getPrimarySensor().getName() + " is: " + (neededCorrection * -1));
-            //BUG: Flipping if the controls go up or down would make for an easyish bug to find/fix
-            if (neededCorrection > 0) {
+            if (neededCorrection < 0) {
                 c.decreaseControl(Math.abs(neededCorrection));
             }
-            if (neededCorrection < 0) {
+            if (neededCorrection > 0) {
                 c.increaseControl(Math.abs(neededCorrection));
             }
-            //BUG: I think we could have a 0 comparison problem with double rounding imprecision
             if (neededCorrection == 0.0) {
                 c.dampenControls();
             }

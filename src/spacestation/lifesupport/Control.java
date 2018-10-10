@@ -32,7 +32,7 @@ public class Control {
         System.out.println("Repairing \"" + Name +"\".  Before repairs it is: " + Status);
         System.out.println("Attempting repairs...");
         if (Status.lessSevere(StatusCode.CRITICAL)) {
-            RoundsBroken--;
+            RoundsBroken++;
             if (RoundsBroken <= 0) {
                 Status = StatusCode.NOMINAL;
                 RoundsBroken = 0;

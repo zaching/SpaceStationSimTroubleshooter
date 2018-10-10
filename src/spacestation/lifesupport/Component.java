@@ -111,7 +111,7 @@ public class Component {
     }
 
     private StatusCode incrementControl(Control c, double value) {
-        value = Math.max(0,value); //BUG: If you use Math.abs instead, it would be easy to send the opposite signal
+        value = Math.abs(value);
         CurrentSetting += roundToPrecision(c.increment(value));
         //If an invalid setting was sent, return a warning to the sender
         if (getCurrentSetting() >= MinSetting && value <= MaxSetting) {

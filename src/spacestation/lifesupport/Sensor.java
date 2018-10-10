@@ -31,7 +31,7 @@ public class Sensor {
 
     public boolean willBeAboveDesired(double amtTempWillChange) {
         double currentTemp = getReading();
-        return currentTemp + amtTempWillChange > Limit.UpperSoftBound;
+        return currentTemp + amtTempWillChange > Limit.LowerSoftBound;
     }
 
     public boolean willBeBelowDesired(double amtTempWillChange) {
@@ -61,8 +61,8 @@ public class Sensor {
 
     public StatusCode getStatus() {
         //System.out.println(Name + " is outside safe?" + outsideSafe() + "\n outside desired?" + outsideDesired());
-        if (outsideSafe()) return StatusCode.CRITICAL; //BUG: Switching these two lines will make a nice bug
         if (outsideDesired()) return StatusCode.WARNING;
+        if (outsideSafe()) return StatusCode.CRITICAL;
         return StatusCode.NOMINAL;
     }
 
