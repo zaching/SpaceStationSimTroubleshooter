@@ -61,7 +61,7 @@ public class Sensor {
 
     public StatusCode getStatus() {
         //System.out.println(Name + " is outside safe?" + outsideSafe() + "\n outside desired?" + outsideDesired());
-        if (outsideSafe()) return StatusCode.CRITICAL; //BUG: Switching these two lines will make a nice bug
+        if (outsideSafe()) return StatusCode.CRITICAL;
         if (outsideDesired()) return StatusCode.WARNING;
         return StatusCode.NOMINAL;
     }

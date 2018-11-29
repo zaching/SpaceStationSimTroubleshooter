@@ -72,7 +72,6 @@ public class LifeSupportSystem {
         HashSet<Sensor> ret = new HashSet<>();
         for (Component c : SubComponents) {
             ret.add(c.getPrimarySensor());
-            //BUG: Another good place for an NPE, this one could be fun b/c it might actually add null to the ArrayList causing weird downstream issues!
             if (c.getSecondarySensor() != null) {
                 ret.add(c.getSecondarySensor());
             }

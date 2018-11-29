@@ -116,7 +116,6 @@ public class Main {
         for (Component c : allComponents) {
             double amountToChangePrimaryParameter = c.getCurrentSetting()* c.SettingPrimaryImpact;
             c.getPrimarySensor().getParameterLimit().getParameter().increaseValue(amountToChangePrimaryParameter);
-            //BUG: Secondary sensor is null for many components, could be an easy bug to have an NPE if I remove this sitRep
             if (c.getSecondarySensor() != null) {
                 double amountToChangeSecondaryParameter = c.getCurrentSetting() * c.SettingSecondaryImpact;
                 c.getSecondarySensor().getParameterLimit().getParameter().increaseValue(amountToChangeSecondaryParameter);
@@ -146,6 +145,7 @@ public class Main {
 
     public static void breakComponents(int currentRound) {
         breakComponent(currentRound,40,"Heat Radiator",true,5); //Will cause a crit fail @ Round 50 if you switch this to 6 rounds
+        breakComponent(currentRound,2,"Heater",true,10); //Will cause a crit fail @ Round 50 if you switch this to 6 rounds
     }
 
     public static void changeTemperatures(int currentRound) {
