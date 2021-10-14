@@ -1,2 +1,2 @@
 # TroubleshootingExercise
-A simple Java-base space station simulator that needs fixing
+A simple Java-based space station simulator that needs fixing
